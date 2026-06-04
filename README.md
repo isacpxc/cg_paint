@@ -70,7 +70,5 @@ Podemos dividir as tarefas entre a equipe nas seguintes frentes (criando os arqu
 ## 🤝 Dicas para o Desenvolvimento
 
 * **Leiam o `Estruturas.h`!** Antes de codificar, dêem uma olhada no arquivo para entenderem os nomes das variáveis e as estruturas disponíveis.
-* **Mantenham as coisas modulares:** Evitem fazer tudo no `main.c`. Vamos colocar a lógica de desenho junto com o desenho, a de matemática junto com a matemática.
+* <span style="color:red">**Mantenham as coisas modulares:** Evitem fazer tudo no `main.c`. Vamos colocar a lógica de desenho junto com o desenho, a de matemática junto com a matemática.</span>
 * Qualquer dúvida sobre a arquitetura ou como acessar um dado, é só mandar mensagem no grupo!
-
-Bora codar! 🚀
