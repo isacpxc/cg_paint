@@ -73,3 +73,14 @@ Vamos manter o histórico do projeto limpo e legível. Comece a mensagem do seu 
 6. Abrir Pull Request para a branch `dev` (integrar com o resto do projeto)
 
 Seguindo esse padrão, se algo quebrar, basta voltarmos um passo para trás e ninguém perde o trabalho de ninguém! 🚀
+
+---
+
+## 🛡️ Entendendo as Regras de Proteção (Rulesets)
+
+Como o nosso repositório é **Público**, nós ativamos **Rulesets** (Regras de Proteção de Branch) no GitHub. Isso significa que o próprio servidor do GitHub vai ativamente bloquear comandos perigosos e proteger o nosso código de cagadas.
+
+As regras ativas para a nossa `main` e `dev` são:
+* **Require a pull request before merging:** Ninguém consegue enviar (`git push`) código direto para as ramificações principais. Tudo tem que passar por uma revisão no site abrindo um Pull Request.
+* **Block force pushes:** Proíbe forçar comandos (como `git push -f`) que reescrevem o histórico do Git (o que apagaria o trabalho local dos outros de forma irreversível). O terminal vai dar erro de permissão.
+* **Restrict deletions:** Impede que qualquer membro do grupo exclua acidentalmente as ramificações "alvo" (como a `main` ou `dev`). Apenas o **Administrador** (criador do repositório) tem "bypass" (permissão de desvio) para excluir a branch caso ocorra uma emergência absoluta.
