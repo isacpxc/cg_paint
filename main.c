@@ -98,11 +98,38 @@ void display() {
         glEnd();
     }
 
+    if (ctx.ui.ferramenta_atual == MODO_POLIGONO && ctx.ui.qtd_vertices_temp > 0) {
+        glPointSize(8.0f);
+        glColor3f(ctx.ui.cor_atual[0], ctx.ui.cor_atual[1], ctx.ui.cor_atual[2]);
+        glBegin(GL_POINTS);
+        for (int i = 0; i < ctx.ui.qtd_vertices_temp; i++) {
+            glVertex2f(ctx.ui.vertices_temp[i].x, ctx.ui.vertices_temp[i].y);
+        }
+        glEnd();
+
+        if (ctx.ui.qtd_vertices_temp > 1) {
+            glLineWidth(ctx.ui.espessura_atual > 0.0f ? ctx.ui.espessura_atual : 2.0f);
+            glBegin(GL_LINE_STRIP);
+            for (int i = 0; i < ctx.ui.qtd_vertices_temp; i++) {
+                glVertex2f(ctx.ui.vertices_temp[i].x, ctx.ui.vertices_temp[i].y);
+            }
+            glEnd();
+        }
+    }
+
     const char* modo_texto = "";
+    char poligono_texto[32];
     switch (ctx.ui.ferramenta_atual) {
         case MODO_PONTO:    modo_texto = "[PONTO]";    break;
         case MODO_RETA:     modo_texto = ctx.ui.tem_p1_temp ? "[RETA: clique P2]" : "[RETA]"; break;
-        case MODO_POLIGONO: modo_texto = "[POLIGONO]"; break;
+        case MODO_POLIGONO:
+            if (ctx.ui.construindo_poligono) {
+                sprintf(poligono_texto, "[POLIGONO: %d vertices]", ctx.ui.qtd_vertices_temp);
+                modo_texto = poligono_texto;
+            } else {
+                modo_texto = "[POLIGONO]";
+            }
+            break;
         case MODO_SELECAO:  modo_texto = "[SELECAO]";  break;
         case MODO_BORRACHA: modo_texto = "[BORRACHA]"; break;
     }
@@ -147,7 +174,16 @@ void mouse(int botao, int estado, int x, int y) {
                 break;
 
             case MODO_POLIGONO:
-                printf("[POLIGONO] Clique em (%.0f, %.0f) - ainda nao implementado\n", mx, my);
+                if (ctx.ui.qtd_vertices_temp < MAX_VERTICES) {
+                    ctx.ui.vertices_temp[ctx.ui.qtd_vertices_temp].x = mx;
+                    ctx.ui.vertices_temp[ctx.ui.qtd_vertices_temp].y = my;
+                    ctx.ui.qtd_vertices_temp++;
+                    ctx.ui.construindo_poligono = 1;
+                    printf("[POLIGONO] Vertice %d em (%.0f, %.0f) - direito para finalizar\n",
+                           ctx.ui.qtd_vertices_temp, mx, my);
+                } else {
+                    printf("[AVISO] Maximo de vertices atingido (%d).\n", MAX_VERTICES);
+                }
                 break;
 
             case MODO_SELECAO:
@@ -160,6 +196,23 @@ void mouse(int botao, int estado, int x, int y) {
                 printf("[BORRACHA] Clique em (%.0f, %.0f) - ainda nao implementado\n", mx, my);
                 break;
         }
+        glutPostRedisplay();
+    }
+
+    if (botao == GLUT_RIGHT_BUTTON && ctx.ui.ferramenta_atual == MODO_POLIGONO
+        && ctx.ui.construindo_poligono) {
+        if (ctx.ui.qtd_vertices_temp >= 3) {
+            if (adicionarPoligono(&ctx.cena, ctx.ui.vertices_temp, ctx.ui.qtd_vertices_temp,
+                                  ctx.ui.cor_atual, ctx.ui.cor_atual, 0, ctx.ui.espessura_atual)) {
+                printf("Poligono #%d criado com %d vertices\n",
+                       ctx.cena.qtd_poligonos, ctx.ui.qtd_vertices_temp);
+            }
+        } else {
+            printf("[AVISO] Precisa de pelo menos 3 vertices (tem %d). Poligono cancelado.\n",
+                   ctx.ui.qtd_vertices_temp);
+        }
+        ctx.ui.qtd_vertices_temp = 0;
+        ctx.ui.construindo_poligono = 0;
         glutPostRedisplay();
     }
 }
@@ -180,7 +233,9 @@ void teclado(unsigned char tecla, int x, int y) {
         case '3':
             ctx.ui.ferramenta_atual = MODO_POLIGONO;
             ctx.ui.tem_p1_temp = 0;
-            printf(">> Ferramenta: POLIGONO\n");
+            ctx.ui.qtd_vertices_temp = 0;
+            ctx.ui.construindo_poligono = 0;
+            printf(">> Ferramenta: POLIGONO (esquerdo=vertice, direito=finalizar)\n");
             break;
         case '4':
             ctx.ui.ferramenta_atual = MODO_SELECAO;
@@ -263,7 +318,7 @@ int main(int argc, char** argv) {
     printf("  FERRAMENTAS (teclado numerico):\n");
     printf("    1 = Ponto\n");
     printf("    2 = Reta       (2 cliques: P1 e P2)\n");
-    printf("    3 = Poligono   (nao implementado)\n");
+    printf("    3 = Poligono   (esquerdo=vertice, direito=finalizar)\n");
     printf("    4 = Selecao    (nao implementado)\n");
     printf("    5 = Borracha   (nao implementado)\n");
     printf("  CONTROLES:\n");

@@ -81,3 +81,62 @@ int adicionarReta(CenaGrafica *cena, Ponto p1, Ponto p2, float cor[3], float esp
 
     return 1;
 }
+
+// =============================================================================
+// adicionarPoligono
+// -----------------------------------------------------------------------------
+// Cria um Poligono na CenaGrafica a partir de um array de vertices.
+//
+// Parametros:
+//   cena              - ponteiro para a cena
+//   vertices          - array de pontos (vertices do poligono)
+//   qtd_vertices      - quantidade de vertices (minimo 3)
+//   cor_contorno      - cor RGB do contorno
+//   cor_preenchimento - cor RGB do preenchimento
+//   preenchido        - 0 = so contorno, 1 = preenchido
+//   espessura_contorno- espessura das arestas
+//
+// Retorno:
+//   1 se o poligono foi adicionado com sucesso, 0 se falhou.
+// =============================================================================
+int adicionarPoligono(CenaGrafica *cena, Ponto vertices[], int qtd_vertices,
+                      float cor_contorno[3], float cor_preenchimento[3],
+                      int preenchido, float espessura_contorno) {
+    if (cena->qtd_poligonos >= MAX_OBJETOS) {
+        printf("[ERRO] Limite maximo de poligonos atingido (%d).\n", MAX_OBJETOS);
+        return 0;
+    }
+
+    if (qtd_vertices < 3) {
+        printf("[ERRO] Poligono precisa de pelo menos 3 vertices (recebeu %d).\n", qtd_vertices);
+        return 0;
+    }
+
+    if (qtd_vertices > MAX_VERTICES) {
+        printf("[AVISO] Poligono truncado para %d vertices (recebeu %d).\n", MAX_VERTICES, qtd_vertices);
+        qtd_vertices = MAX_VERTICES;
+    }
+
+    Poligono *novo = &cena->poligonos[cena->qtd_poligonos];
+
+    for (int i = 0; i < qtd_vertices; i++) {
+        novo->vertices[i] = vertices[i];
+    }
+    novo->qtd_vertices = qtd_vertices;
+
+    novo->cor_contorno[0] = cor_contorno[0];
+    novo->cor_contorno[1] = cor_contorno[1];
+    novo->cor_contorno[2] = cor_contorno[2];
+
+    novo->cor_preenchimento[0] = cor_preenchimento[0];
+    novo->cor_preenchimento[1] = cor_preenchimento[1];
+    novo->cor_preenchimento[2] = cor_preenchimento[2];
+
+    novo->preenchido = preenchido;
+    novo->espessura_contorno = (espessura_contorno > 0.0f) ? espessura_contorno : 1.0f;
+    novo->selecionado = 0;
+
+    cena->qtd_poligonos++;
+
+    return 1;
+}
