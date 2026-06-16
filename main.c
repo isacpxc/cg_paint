@@ -90,10 +90,18 @@ void display() {
         glVertex2f(10, 30);
     glEnd();
 
+    if (ctx.ui.ferramenta_atual == MODO_RETA && ctx.ui.tem_p1_temp) {
+        glPointSize(10.0f);
+        glColor3f(ctx.ui.cor_atual[0], ctx.ui.cor_atual[1], ctx.ui.cor_atual[2]);
+        glBegin(GL_POINTS);
+            glVertex2f(ctx.ui.p1_temp.x, ctx.ui.p1_temp.y);
+        glEnd();
+    }
+
     const char* modo_texto = "";
     switch (ctx.ui.ferramenta_atual) {
         case MODO_PONTO:    modo_texto = "[PONTO]";    break;
-        case MODO_RETA:     modo_texto = "[RETA]";     break;
+        case MODO_RETA:     modo_texto = ctx.ui.tem_p1_temp ? "[RETA: clique P2]" : "[RETA]"; break;
         case MODO_POLIGONO: modo_texto = "[POLIGONO]"; break;
         case MODO_SELECAO:  modo_texto = "[SELECAO]";  break;
         case MODO_BORRACHA: modo_texto = "[BORRACHA]"; break;
@@ -122,7 +130,20 @@ void mouse(int botao, int estado, int x, int y) {
                 break;
 
             case MODO_RETA:
-                printf("[RETA] Clique em (%.0f, %.0f) - ainda nao implementado\n", mx, my);
+                if (!ctx.ui.tem_p1_temp) {
+                    ctx.ui.p1_temp.x = mx;
+                    ctx.ui.p1_temp.y = my;
+                    ctx.ui.tem_p1_temp = 1;
+                    printf("[RETA] P1 em (%.0f, %.0f) - clique P2 para finalizar\n", mx, my);
+                } else {
+                    Ponto p2 = {mx, my};
+                    if (adicionarReta(&ctx.cena, ctx.ui.p1_temp, p2, ctx.ui.cor_atual, ctx.ui.espessura_atual)) {
+                        printf("Reta #%d de (%.0f, %.0f) ate (%.0f, %.0f)\n",
+                               ctx.cena.qtd_retas,
+                               ctx.ui.p1_temp.x, ctx.ui.p1_temp.y, mx, my);
+                    }
+                    ctx.ui.tem_p1_temp = 0;
+                }
                 break;
 
             case MODO_POLIGONO:
@@ -148,22 +169,27 @@ void teclado(unsigned char tecla, int x, int y) {
     switch (tecla) {
         case '1':
             ctx.ui.ferramenta_atual = MODO_PONTO;
+            ctx.ui.tem_p1_temp = 0;
             printf(">> Ferramenta: PONTO\n");
             break;
         case '2':
             ctx.ui.ferramenta_atual = MODO_RETA;
-            printf(">> Ferramenta: RETA\n");
+            ctx.ui.tem_p1_temp = 0;
+            printf(">> Ferramenta: RETA (clique 2 pontos)\n");
             break;
         case '3':
             ctx.ui.ferramenta_atual = MODO_POLIGONO;
+            ctx.ui.tem_p1_temp = 0;
             printf(">> Ferramenta: POLIGONO\n");
             break;
         case '4':
             ctx.ui.ferramenta_atual = MODO_SELECAO;
+            ctx.ui.tem_p1_temp = 0;
             printf(">> Ferramenta: SELECAO\n");
             break;
         case '5':
             ctx.ui.ferramenta_atual = MODO_BORRACHA;
+            ctx.ui.tem_p1_temp = 0;
             printf(">> Ferramenta: BORRACHA\n");
             break;
 
@@ -236,7 +262,7 @@ int main(int argc, char** argv) {
     printf("=============================================\n");
     printf("  FERRAMENTAS (teclado numerico):\n");
     printf("    1 = Ponto\n");
-    printf("    2 = Reta       (nao implementado)\n");
+    printf("    2 = Reta       (2 cliques: P1 e P2)\n");
     printf("    3 = Poligono   (nao implementado)\n");
     printf("    4 = Selecao    (nao implementado)\n");
     printf("    5 = Borracha   (nao implementado)\n");
