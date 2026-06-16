@@ -43,6 +43,9 @@
 		<Unit filename="primitivas.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="saveLoad.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Extensions>
 			<lib_finder disable_auto="1" />
 		</Extensions>
