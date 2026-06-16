@@ -130,7 +130,7 @@ typedef struct {
 
 typedef struct {
     CenaGrafica cena;
-    EstadoInterface interface;
+    EstadoInterface ui;  // "interface" e palavra reservada no Windows (rpcdce.h)
 } ContextoPaint;
 
 // ============================================================================
@@ -141,7 +141,7 @@ typedef struct {
 void inicializarContexto(ContextoPaint *ctx);
 
 // --- Criacao de objetos ---
-void adicionarPonto(CenaGrafica *cena, float x, float y, float cor[3], float tamanho);
+int adicionarPonto(CenaGrafica *cena, float x, float y, float cor[3], float tamanho);
 void adicionarReta(CenaGrafica *cena, Ponto p1, Ponto p2, float cor[3], float espessura);
 void adicionarPoligono(CenaGrafica *cena, Ponto vertices[], int qtd_vertices,
                        float cor_contorno[3], float cor_preenchimento[3],
