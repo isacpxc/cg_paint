@@ -175,8 +175,8 @@ void refletirObjeto(CenaGrafica *cena, EixoReflexao eixo);
 void cisalharObjeto(CenaGrafica *cena, float shx, float shy);
 
 // --- Salvar/Carregar arquivo ---
-void salvarCena(CenaGrafica *cena, const char *nomeArquivo);
-void carregarCena(CenaGrafica *cena, const char *nomeArquivo);
+int salvarCena(CenaGrafica *cena, const char *nomeArquivo);
+int carregarCena(CenaGrafica *cena, const char *nomeArquivo);
 
 // --- Utilidades geometricas ---
 Ponto calcularCentro(Ponto vertices[], int qtd);
