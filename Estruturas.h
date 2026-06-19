@@ -130,7 +130,7 @@ typedef struct {
 
 typedef struct {
     CenaGrafica cena;
-    EstadoInterface interface;
+    EstadoInterface estado_interface;
 } ContextoPaint;
 
 // ============================================================================
