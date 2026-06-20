@@ -4,8 +4,11 @@
 
 #include "Estruturas.h"
 
+// Prototipo da funcao de animacao
+void atualizarPassoAnimacao(ContextoPaint *ctx);
+
 // ============================================================================
-// VARIAVEL GLOBAL - Contexto do Paint
+// VARIAVEIS GLOBAIS
 // ============================================================================
 ContextoPaint ctx;
 
@@ -29,6 +32,28 @@ const char* nomes_cores[] = {
 };
 int total_cores = 8;
 int indice_cor = 0;
+int animacao_ligada = 0;
+
+// Modos de animacao suportados
+#define ANIM_DIREITA  0
+#define ANIM_ESQUERDA 1
+#define ANIM_CIMA     2
+#define ANIM_BAIXO    3
+#define ANIM_CIRCULAR 4
+
+int modo_animacao = ANIM_DIREITA;
+float angulo_circular = 0.0f;
+
+// ============================================================================
+// LOOP DA ANIMACAO
+// ============================================================================
+void timerAnimacao(int valor) {
+    if (animacao_ligada) {
+        atualizarPassoAnimacao(&ctx);
+        glutPostRedisplay();
+    }
+    glutTimerFunc(16, timerAnimacao, 0);
+}
 
 void display() {
     glClear(GL_COLOR_BUFFER_BIT);
@@ -187,12 +212,10 @@ void mouse(int botao, int estado, int x, int y) {
                 break;
 
             case MODO_SELECAO:
-                // TODO: selecionarObjeto (modulo do Felipe)
                 printf("[SELECAO] Clique em (%.0f, %.0f) - ainda nao implementado\n", mx, my);
                 break;
 
             case MODO_BORRACHA:
-                // TODO: excluirObjeto (modulo do Felipe)
                 printf("[BORRACHA] Clique em (%.0f, %.0f) - ainda nao implementado\n", mx, my);
                 break;
         }
@@ -217,9 +240,9 @@ void mouse(int botao, int estado, int x, int y) {
     }
 }
 
-
 void teclado(unsigned char tecla, int x, int y) {
     switch (tecla) {
+        // Ferramentas base
         case '1':
             ctx.ui.ferramenta_atual = MODO_PONTO;
             ctx.ui.tem_p1_temp = 0;
@@ -248,8 +271,8 @@ void teclado(unsigned char tecla, int x, int y) {
             printf(">> Ferramenta: BORRACHA\n");
             break;
 
-        case 'c':
-        case 'C':
+        // UI
+        case 'c': case 'C':
             indice_cor = (indice_cor + 1) % total_cores;
             ctx.ui.cor_atual[0] = paleta[indice_cor][0];
             ctx.ui.cor_atual[1] = paleta[indice_cor][1];
@@ -257,7 +280,6 @@ void teclado(unsigned char tecla, int x, int y) {
             printf(">> Cor: %s\n", nomes_cores[indice_cor]);
             glutPostRedisplay();
             break;
-
         case '+':
             ctx.ui.espessura_atual += 2.0f;
             if (ctx.ui.espessura_atual > 50.0f) ctx.ui.espessura_atual = 50.0f;
@@ -268,12 +290,36 @@ void teclado(unsigned char tecla, int x, int y) {
             if (ctx.ui.espessura_atual < 2.0f) ctx.ui.espessura_atual = 2.0f;
             printf(">> Espessura: %.0f\n", ctx.ui.espessura_atual);
             break;
-
-        case 'l':
-        case 'L':
+        case 'l': case 'L':
             memset(&ctx.cena, 0, sizeof(CenaGrafica));
             printf(">> Tela limpa!\n");
             glutPostRedisplay();
+            break;
+
+        // Controles de Animacao
+        case 'p': case 'P':
+            animacao_ligada = !animacao_ligada;
+            printf(">> Animacao %s!\n", animacao_ligada ? "LIGADA" : "DESLIGADA");
+            break;
+        case 'w': case 'W':
+            modo_animacao = ANIM_CIMA;
+            printf(">> Direcao da animacao: CIMA\n");
+            break;
+        case 's': case 'S':
+            modo_animacao = ANIM_BAIXO;
+            printf(">> Direcao da animacao: BAIXO\n");
+            break;
+        case 'a': case 'A':
+            modo_animacao = ANIM_ESQUERDA;
+            printf(">> Direcao da animacao: ESQUERDA\n");
+            break;
+        case 'd': case 'D':
+            modo_animacao = ANIM_DIREITA;
+            printf(">> Direcao da animacao: DIREITA\n");
+            break;
+        case 'm': case 'M':
+            modo_animacao = ANIM_CIRCULAR;
+            printf(">> Modo de animacao: CIRCULAR\n");
             break;
 
         case 27:
@@ -281,7 +327,6 @@ void teclado(unsigned char tecla, int x, int y) {
             break;
     }
 }
-
 
 void redimensionar(int w, int h) {
     glViewport(0, 0, w, h);
@@ -312,21 +357,37 @@ int main(int argc, char** argv) {
     glutMouseFunc(mouse);
     glutKeyboardFunc(teclado);
     glutReshapeFunc(redimensionar);
-    printf("=============================================\n");
-    printf("       CG PAINT - Computacao Grafica\n");
-    printf("=============================================\n");
-    printf("  FERRAMENTAS (teclado numerico):\n");
+
+    // ============================================================================
+    // MENU DO CONSOLE ATUALIZADO
+    // ============================================================================
+    printf("==================================================\n");
+    printf("         CG PAINT - Computacao Grafica            \n");
+    printf("==================================================\n");
+    printf("  FERRAMENTAS (teclado):\n");
     printf("    1 = Ponto\n");
     printf("    2 = Reta       (2 cliques: P1 e P2)\n");
     printf("    3 = Poligono   (esquerdo=vertice, direito=finalizar)\n");
     printf("    4 = Selecao    (nao implementado)\n");
     printf("    5 = Borracha   (nao implementado)\n");
-    printf("  CONTROLES:\n");
-    printf("    C     = trocar cor\n");
-    printf("    +/-   = aumentar/diminuir espessura\n");
-    printf("    L     = limpar tela\n");
-    printf("    ESC   = sair\n");
-    printf("=============================================\n\n");
+    printf("--------------------------------------------------\n");
+    printf("  CONTROLES GERAIS:\n");
+    printf("    C     = Trocar cor\n");
+    printf("    +/-   = Aumentar / diminuir espessura\n");
+    printf("    L     = Limpar tela\n");
+    printf("    ESC   = Sair\n");
+    printf("--------------------------------------------------\n");
+    printf("  CONTROLES DE ANIMACAO:\n");
+    printf("    P     = Ativar / Pausar animacao\n");
+    printf("    W     = Mover para CIMA\n");
+    printf("    S     = Mover para BAIXO\n");
+    printf("    A     = Mover para ESQUERDA\n");
+    printf("    D     = Mover para DIREITA\n");
+    printf("    M     = Ativar movimento CIRCULAR (Orbita)\n");
+    printf("==================================================\n\n");
+
+    // Inicializa o motor de animacao
+    glutTimerFunc(16, timerAnimacao, 0);
 
     glutMainLoop();
     return 0;
