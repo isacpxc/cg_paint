@@ -299,7 +299,7 @@ void teclado(unsigned char tecla, int x, int y) {
             printf(">> Tela limpa!\n");
             glutPostRedisplay();
             break;
-        case 'e': case 'E':
+        case 'z': case 'Z':
             printf(">> Exluindo objeto selecionado\n");
             excluirObjetosSelecionados(&ctx.cena);
             glutPostRedisplay();
