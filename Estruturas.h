@@ -2,7 +2,7 @@
 #define ESTRUTURAS_H
 
 #define MAX_VERTICES 200
-#define MAX_OBJETOS 1000
+#define MAX_OBJETOS 20000
 
 #ifdef _WIN32
     #include <windows.h>
@@ -19,7 +19,8 @@ typedef enum {
     MODO_RETA,       // Ferramenta de criar retas
     MODO_POLIGONO,   // Ferramenta de criar poligonos
     MODO_SELECAO,    // Ferramenta de selecionar objetos
-    MODO_BORRACHA    // Ferramenta de exclusao (clicou, apagou)
+    MODO_BORRACHA,   // Ferramenta de exclusao (clicou, apagou)
+    MODO_LAPIS       // Ferramenta de desenho continuo
 } ModoFerramenta;
 
 // Tipo de objeto (util para funcoes genericas de selecao/exclusao)

@@ -157,6 +157,7 @@ void display() {
             break;
         case MODO_SELECAO:  modo_texto = "[SELECAO]";  break;
         case MODO_BORRACHA: modo_texto = "[BORRACHA]"; break;
+        case MODO_LAPIS:    modo_texto = "[LAPIS]";    break;
     }
     glColor3f(1.0f, 1.0f, 1.0f);
     glRasterPos2f(40, 16);
@@ -167,7 +168,36 @@ void display() {
     glutSwapBuffers();
 }
 
+static float lapis_mx_ant = -1;
+static float lapis_my_ant = -1;
+
+void mouseArrastar(int x, int y) {
+    if (ctx.ui.ferramenta_atual == MODO_LAPIS) {
+        float mx = (float)x;
+        float my = (float)(glutGet(GLUT_WINDOW_HEIGHT) - y);
+        
+        if (lapis_mx_ant != -1 && lapis_my_ant != -1) {
+            Ponto p1 = {lapis_mx_ant, lapis_my_ant};
+            Ponto p2 = {mx, my};
+            adicionarReta(&ctx.cena, p1, p2, ctx.ui.cor_atual, ctx.ui.espessura_atual);
+        } else {
+            adicionarPonto(&ctx.cena, mx, my, ctx.ui.cor_atual, ctx.ui.espessura_atual);
+        }
+        
+        lapis_mx_ant = mx;
+        lapis_my_ant = my;
+        glutPostRedisplay();
+    }
+}
+
 void mouse(int botao, int estado, int x, int y) {
+    if (estado == GLUT_UP) {
+        if (ctx.ui.ferramenta_atual == MODO_LAPIS) {
+            lapis_mx_ant = -1;
+            lapis_my_ant = -1;
+        }
+        return;
+    }
     if (estado != GLUT_DOWN) return;
 
     float mx = (float)x;
@@ -222,6 +252,13 @@ void mouse(int botao, int estado, int x, int y) {
                 // excluirObjetosSelecionados(&ctx.cena);
                 excluirObjetoSelecionado(&ctx.cena, mx, my);
                 break;
+                
+            case MODO_LAPIS:
+                lapis_mx_ant = mx;
+                lapis_my_ant = my;
+                adicionarPonto(&ctx.cena, mx, my, ctx.ui.cor_atual, ctx.ui.espessura_atual);
+                glutPostRedisplay();
+                break;
         }
         glutPostRedisplay();
     }
@@ -273,6 +310,13 @@ void teclado(unsigned char tecla, int x, int y) {
             ctx.ui.ferramenta_atual = MODO_BORRACHA;
             ctx.ui.tem_p1_temp = 0;
             printf(">> Ferramenta: BORRACHA\n");
+            break;
+            
+        case '6':
+            ctx.ui.ferramenta_atual = MODO_LAPIS;
+            ctx.ui.tem_p1_temp = 0;
+            ctx.ui.qtd_vertices_temp = 0;
+            printf(">> Ferramenta: LAPIS (Continuo)\n");
             break;
 
         // UI
@@ -482,6 +526,7 @@ int main(int argc, char** argv) {
 
     glutDisplayFunc(display);
     glutMouseFunc(mouse);
+    glutMotionFunc(mouseArrastar);
     glutKeyboardFunc(teclado);
     glutSpecialFunc(teclasEspeciais);
     glutReshapeFunc(redimensionar);
@@ -498,6 +543,7 @@ int main(int argc, char** argv) {
     printf("    3 = Poligono   (esquerdo=vertice, direito=finalizar)\n");
     printf("    4 = Selecao    (Clique para selecionar objetos))\n");
     printf("    5 = Borracha   (Clique para remover objeto)\n");
+    printf("    6 = Lapis      (Arrastar para desenho continuo)\n");
     printf("--------------------------------------------------\n");
     printf("  CONTROLES GERAIS:\n");
     printf("    C     = Trocar cor\n");
