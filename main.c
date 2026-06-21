@@ -322,6 +322,105 @@ void teclado(unsigned char tecla, int x, int y) {
             printf(">> Modo de animacao: CIRCULAR\n");
             break;
 
+        // Controles de transformacao
+
+        // ======================
+        // TRANSLACAO
+        // ======================
+        case 't': case 'T':
+            transladarObjeto(&ctx.cena, 20.0f, 0.0f);
+            printf(">> Translacao direita\n");
+            glutPostRedisplay();
+            break;
+
+        case 'g': case 'G':
+            transladarObjeto(&ctx.cena, -20.0f, 0.0f);
+            printf(">> Translacao esquerda\n");
+            glutPostRedisplay();
+            break;
+
+        case 'u': case 'U':
+            transladarObjeto(&ctx.cena, 0.0f, 20.0f);
+            printf(">> translacao cima\n");
+            glutPostRedisplay();
+            break;
+
+        case 'j': case 'J':
+            transladarObjeto(&ctx.cena, 0.0f, -20.0f);
+            printf(">> translacao baixo\n");
+            glutPostRedisplay();
+            break;
+
+        // ======================
+        // ROTACAO
+        // ======================
+
+        case 'r': case 'R':
+            rotacionarObjeto(&ctx.cena, 15.0f);
+            printf(">> rotacao +15 graus\n");
+            glutPostRedisplay();
+            break;
+
+        case 'f': case 'F':
+            rotacionarObjeto(&ctx.cena, -15.0f);
+            printf(">> rotacao -15 graus\n");
+            glutPostRedisplay();
+            break;
+
+        // ======================
+        // REFLEXAO
+        // ======================
+
+        case 'x': case 'X':
+            refletirObjeto(&ctx.cena, REFLEXAO_X);
+            printf(">> Reflexao eixo X\n");
+            glutPostRedisplay();
+            break;
+
+        case 'y': case 'Y':
+            refletirObjeto(&ctx.cena, REFLEXAO_Y);
+            printf(">> Reflexao eixo Y\n");
+            glutPostRedisplay();
+            break;
+
+        case 'o': case 'O':
+            refletirObjeto(&ctx.cena, REFLEXAO_ORIGEM);
+            printf(">> Reflexao origem\n");
+            glutPostRedisplay();
+            break;
+
+        // ======================
+        // ESCALA
+        // ======================
+
+        case 'e': case 'E':
+            escalarObjeto(&ctx.cena, 1.2f, 1.2f);
+            printf(">> Escala +20%%\n");
+            glutPostRedisplay();
+            break;
+
+        case 'n': case 'N':
+            escalarObjeto(&ctx.cena, 0.8f, 0.8f);
+            printf(">> Escala -20%%\n");
+            glutPostRedisplay();
+            break;
+
+        // ======================
+        // CISALHAMENTO
+        // ======================
+
+        case 'h': case 'H':
+            cisalharObjeto(&ctx.cena, 0.2f, 0.0f);
+            printf(">> Cisalhamento +X\n");
+            glutPostRedisplay();
+            break;
+
+        case 'k': case 'K':
+            cisalharObjeto(&ctx.cena, -0.2f, 0.0f);
+            printf(">> Cisalhamento -X\n");
+            glutPostRedisplay();
+            break;
+
         case 27:
             exit(0);
             break;
@@ -384,7 +483,23 @@ int main(int argc, char** argv) {
     printf("    A     = Mover para ESQUERDA\n");
     printf("    D     = Mover para DIREITA\n");
     printf("    M     = Ativar movimento CIRCULAR (Orbita)\n");
-    printf("==================================================\n\n");
+    printf("--------------------------------------------------\n");
+    printf("  CONTROLES DE TRANFORMCOES GEOMETRICAS:\n");
+    printf("    T = mover direita\n");
+    printf("    G = mover esquerda\n");
+    printf("    U = mover cima\n");
+    printf("    J = mover baixo\n");
+    printf("    R = rotacao +15 graus\n");
+    printf("    F = rotacao -15 graus\n");
+    printf("    E = aumentar escala\n");
+    printf("    N = diminuir escala\n");
+    printf("    X = reflexao eixo X\n");
+    printf("    Y = reflexao eixo Y\n");
+    printf("    O = reflexao na origem\n");
+    printf("    H = cisalhamento +X\n");
+    printf("    K = cisalhamento -X\n");
+    printf("==================================================\n");
+
 
     // Inicializa o motor de animacao
     glutTimerFunc(16, timerAnimacao, 0);
