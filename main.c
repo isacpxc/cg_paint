@@ -212,11 +212,15 @@ void mouse(int botao, int estado, int x, int y) {
                 break;
 
             case MODO_SELECAO:
-                printf("[SELECAO] Clique em (%.0f, %.0f) - ainda nao implementado\n", mx, my);
+                printf("[SELECAO], Clique em (%.0f, %.0f)\n", mx, my);
+                selecionarObjeto(&ctx.cena, mx, my);
                 break;
 
             case MODO_BORRACHA:
-                printf("[BORRACHA] Clique em (%.0f, %.0f) - ainda nao implementado\n", mx, my);
+                printf("[BORRACHA] Clique em (%.0f, %.0f)\n", mx, my);
+                // selecionarObjeto(&ctx.cena, mx, my);
+                // excluirObjetosSelecionados(&ctx.cena);
+                excluirObjetoSelecionado(&ctx.cena, mx, my);
                 break;
         }
         glutPostRedisplay();
@@ -295,6 +299,16 @@ void teclado(unsigned char tecla, int x, int y) {
             printf(">> Tela limpa!\n");
             glutPostRedisplay();
             break;
+        case 'e': case 'E':
+            printf(">> Exluindo objeto selecionado\n");
+            excluirObjetosSelecionados(&ctx.cena);
+            glutPostRedisplay();
+            break;
+         case 'q': case 'Q':
+            printf(">> Desselecionando todos\n");
+            desselecionarTodos(&ctx.cena);
+            glutPostRedisplay();
+            break;
 
         // Controles de Animacao
         case 'p': case 'P':
@@ -368,8 +382,8 @@ int main(int argc, char** argv) {
     printf("    1 = Ponto\n");
     printf("    2 = Reta       (2 cliques: P1 e P2)\n");
     printf("    3 = Poligono   (esquerdo=vertice, direito=finalizar)\n");
-    printf("    4 = Selecao    (nao implementado)\n");
-    printf("    5 = Borracha   (nao implementado)\n");
+    printf("    4 = Selecao    (Clique para selecionar objetos))\n");
+    printf("    5 = Borracha   (Clique para remover objeto)\n");
     printf("--------------------------------------------------\n");
     printf("  CONTROLES GERAIS:\n");
     printf("    C     = Trocar cor\n");

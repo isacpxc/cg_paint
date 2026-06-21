@@ -1,14 +1,16 @@
-#include "Estruturas.h"
-#include <stdio.h>
+#include "selecao.h"
 #include <math.h>
 #include <GL/glut.h>
 
 #define TOLERANCIA 10.0f
 
-int larguraJanela = 800;
-int alturaJanela = 600;
-ContextoPaint contexto;
+static int obterLarguraJanela(void) {
+    return glutGet(GLUT_WINDOW_WIDTH);
+}
 
+static int obterAlturaJanela(void) {
+    return glutGet(GLUT_WINDOW_HEIGHT);
+}
 
 void desenharCena(CenaGrafica *cena){
     for( int i = 0; i < cena -> qtd_pontos; i++){
@@ -78,6 +80,8 @@ void desenharCena(CenaGrafica *cena){
 
 
 Ponto windowParaGL(int mx, int my){
+    int larguraJanela = obterLarguraJanela();
+    int alturaJanela = obterAlturaJanela();
     Ponto v;
     v.x = (2.0f * mx / larguraJanela) - 1.0f;
     v.y = 1.0f - (2.0f * my / alturaJanela);
@@ -86,12 +90,16 @@ Ponto windowParaGL(int mx, int my){
 
 
 float distanciaPixels(Ponto a, Ponto b){
+    int larguraJanela = obterLarguraJanela();
+    int alturaJanela = obterAlturaJanela();
     float dx = (a.x - b.x) * larguraJanela / 2.0f;
     float dy = (a.y - b.y) * alturaJanela / 2.0f;
     return sqrtf(dx * dx + dy * dy);
 }
 
 float distPontosSegmentos(Ponto p, Ponto a, Ponto b){
+    int larguraJanela = obterLarguraJanela();
+    int alturaJanela = obterAlturaJanela();
     float ax = (a.x + 1.0f) * larguraJanela / 2.0f;
     float ay = (1.0f - a.y) * alturaJanela / 2.0f;
     float bx = (b.x + 1.0f) * larguraJanela / 2.0f;
@@ -181,6 +189,40 @@ void selecionarObjeto(CenaGrafica *cena, float mouseX, float mouseY){
           cena -> poligonos[i].selecionado = !cena -> poligonos[i].selecionado;
        }
     } 
+}
+
+void excluirObjetoSelecionado(CenaGrafica *cena, float mouseX, float mouseY) {
+    Ponto clique = windowParaGL(mouseX, mouseY);
+
+    for (int i = 0; i < cena->qtd_pontos; i++) {
+        if (clicouNoPonto(&cena->pontos[i], clique)) {
+            for (int j = i; j < cena->qtd_pontos - 1; j++) {
+                cena->pontos[j] = cena->pontos[j + 1];
+            }
+            cena->qtd_pontos--;
+            return;
+        }
+    }
+
+    for (int i = 0; i < cena->qtd_retas; i++) {
+        if (clicouNaReta(&cena->retas[i], clique)) {
+            for (int j = i; j < cena->qtd_retas - 1; j++) {
+                cena->retas[j] = cena->retas[j + 1];
+            }
+            cena->qtd_retas--;
+            return;
+        }
+    }
+
+    for (int i = 0; i < cena->qtd_poligonos; i++) {
+        if (clicouNoPoligono(&cena->poligonos[i], clique)) {
+            for (int j = i; j < cena->qtd_poligonos - 1; j++) {
+                cena->poligonos[j] = cena->poligonos[j + 1];
+            }
+            cena->qtd_poligonos--;
+            return;
+        }
+    }
 }
 
 void excluirObjetosSelecionados(CenaGrafica *cena){
