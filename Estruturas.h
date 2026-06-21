@@ -155,6 +155,7 @@ void desenharPoligono(Poligono *p);
 
 // --- Selecao/Exclusao ---
 void selecionarObjeto(CenaGrafica *cena, float mouseX, float mouseY);
+void excluirObjetoSelecionado(CenaGrafica *cena, float mouseX, float mouseY);
 void excluirObjetosSelecionados(CenaGrafica *cena);
 void desselecionarTodos(CenaGrafica *cena);
 
