@@ -441,6 +441,20 @@ void teclado(unsigned char tecla, int x, int y) {
     }
 }
 
+void teclasEspeciais(int key, int x, int y) {
+    switch (key) {
+        case GLUT_KEY_F1:
+            printf(">> Salvando cena em 'cena_salva.bin'...\n");
+            salvarCena(&ctx.cena, "cena_salva.bin");
+            break;
+        case GLUT_KEY_F2:
+            printf(">> Carregando cena de 'cena_salva.bin'...\n");
+            carregarCena(&ctx.cena, "cena_salva.bin");
+            glutPostRedisplay();
+            break;
+    }
+}
+
 void redimensionar(int w, int h) {
     glViewport(0, 0, w, h);
     glMatrixMode(GL_PROJECTION);
@@ -469,6 +483,7 @@ int main(int argc, char** argv) {
     glutDisplayFunc(display);
     glutMouseFunc(mouse);
     glutKeyboardFunc(teclado);
+    glutSpecialFunc(teclasEspeciais);
     glutReshapeFunc(redimensionar);
 
     // ============================================================================
@@ -488,6 +503,8 @@ int main(int argc, char** argv) {
     printf("    C     = Trocar cor\n");
     printf("    +/-   = Aumentar / diminuir espessura\n");
     printf("    L     = Limpar tela\n");
+    printf("    F1    = Salvar cena atual\n");
+    printf("    F2    = Carregar cena salva\n");
     printf("    ESC   = Sair\n");
     printf("--------------------------------------------------\n");
     printf("  CONTROLES DE ANIMACAO:\n");
