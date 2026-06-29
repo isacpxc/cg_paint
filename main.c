@@ -3,7 +3,7 @@
 #include <string.h>
 
 #include "Estruturas.h"
-
+#include "convexo.h"
 // Prototipo da funcao de animacao
 void atualizarPassoAnimacao(ContextoPaint *ctx);
 
@@ -175,7 +175,7 @@ void mouseArrastar(int x, int y) {
     if (ctx.ui.ferramenta_atual == MODO_LAPIS) {
         float mx = (float)x;
         float my = (float)(glutGet(GLUT_WINDOW_HEIGHT) - y);
-        
+
         if (lapis_mx_ant != -1 && lapis_my_ant != -1) {
             Ponto p1 = {lapis_mx_ant, lapis_my_ant};
             Ponto p2 = {mx, my};
@@ -183,7 +183,7 @@ void mouseArrastar(int x, int y) {
         } else {
             adicionarPonto(&ctx.cena, mx, my, ctx.ui.cor_atual, ctx.ui.espessura_atual);
         }
-        
+
         lapis_mx_ant = mx;
         lapis_my_ant = my;
         glutPostRedisplay();
@@ -252,7 +252,7 @@ void mouse(int botao, int estado, int x, int y) {
                 // excluirObjetosSelecionados(&ctx.cena);
                 excluirObjetoSelecionado(&ctx.cena, mx, my);
                 break;
-                
+
             case MODO_LAPIS:
                 lapis_mx_ant = mx;
                 lapis_my_ant = my;
@@ -311,7 +311,7 @@ void teclado(unsigned char tecla, int x, int y) {
             ctx.ui.tem_p1_temp = 0;
             printf(">> Ferramenta: BORRACHA\n");
             break;
-            
+
         case '6':
             ctx.ui.ferramenta_atual = MODO_LAPIS;
             ctx.ui.tem_p1_temp = 0;
@@ -479,6 +479,15 @@ void teclado(unsigned char tecla, int x, int y) {
             glutPostRedisplay();
             break;
 
+        // ======================
+        // Convexo
+        // ======================
+
+        case 'v': case 'V':
+            converterParaConvexo(&ctx.cena);
+            glutPostRedisplay();
+            break;
+
         case 27:
             exit(0);
             break;
@@ -575,6 +584,7 @@ int main(int argc, char** argv) {
     printf("    O = reflexao na origem\n");
     printf("    H = cisalhamento +X\n");
     printf("    K = cisalhamento -X\n");
+    printf("    V = Converter Polígono em Convexo\n");
     printf("==================================================\n");
 
 
