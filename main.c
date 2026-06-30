@@ -289,7 +289,7 @@ void mouse(int botao, int estado, int x, int y) {
     if (ctx.ui.qtd_vertices_temp >= 3) {
       if (adicionarPoligono(&ctx.cena, ctx.ui.vertices_temp,
                             ctx.ui.qtd_vertices_temp, ctx.ui.cor_atual,
-                            ctx.ui.cor_atual, 0, ctx.ui.espessura_atual)) {
+                            ctx.ui.cor_atual, 1, ctx.ui.espessura_atual)) {
         printf("Poligono #%d criado com %d vertices\n", ctx.cena.qtd_poligonos,
                ctx.ui.qtd_vertices_temp);
       }
