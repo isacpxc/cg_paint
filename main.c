@@ -4,28 +4,17 @@
 
 #include "Estruturas.h"
 #include "convexo.h"
-// Prototipo da funcao de animacao
 void atualizarPassoAnimacao(ContextoPaint *ctx);
 
-// ============================================================================
-// VARIAVEIS GLOBAIS
-// ============================================================================
 ContextoPaint ctx;
 
-// Largura e altura da janela
 #define LARGURA_JANELA 800
 #define ALTURA_JANELA 600
 
-// Paleta de cores disponiveis
 float paleta[][3] = {
-    {1.0f, 0.0f, 0.0f}, // 0 - Vermelho
-    {0.0f, 1.0f, 0.0f}, // 1 - Verde
-    {0.0f, 0.0f, 1.0f}, // 2 - Azul
-    {1.0f, 1.0f, 0.0f}, // 3 - Amarelo
-    {1.0f, 0.0f, 1.0f}, // 4 - Magenta
-    {0.0f, 1.0f, 1.0f}, // 5 - Ciano
-    {1.0f, 1.0f, 1.0f}, // 6 - Branco
-    {1.0f, 0.5f, 0.0f}, // 7 - Laranja
+    {1.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 1.0f},
+    {1.0f, 1.0f, 0.0f}, {1.0f, 0.0f, 1.0f}, {0.0f, 1.0f, 1.0f},
+    {1.0f, 1.0f, 1.0f}, {1.0f, 0.5f, 0.0f},
 };
 const char *nomes_cores[] = {"VERMELHO", "VERDE", "AZUL",   "AMARELO",
                              "MAGENTA",  "CIANO", "BRANCO", "LARANJA"};
@@ -33,7 +22,6 @@ int total_cores = 8;
 int indice_cor = 0;
 int animacao_ligada = 0;
 
-// Modos de animacao suportados
 #define ANIM_DIREITA 0
 #define ANIM_ESQUERDA 1
 #define ANIM_CIMA 2
@@ -43,9 +31,6 @@ int animacao_ligada = 0;
 int modo_animacao = ANIM_DIREITA;
 float angulo_circular = 0.0f;
 
-// ============================================================================
-// LOOP DA ANIMACAO
-// ============================================================================
 void timerAnimacao(int valor) {
   if (animacao_ligada) {
     atualizarPassoAnimacao(&ctx);
@@ -268,8 +253,6 @@ void mouse(int botao, int estado, int x, int y) {
 
     case MODO_BORRACHA:
       printf("[BORRACHA] Clique em (%.0f, %.0f)\n", mx, my);
-      // selecionarObjeto(&ctx.cena, mx, my);
-      // excluirObjetosSelecionados(&ctx.cena);
       excluirObjetoSelecionado(&ctx.cena, mx, my);
       break;
 
@@ -306,7 +289,6 @@ void mouse(int botao, int estado, int x, int y) {
 
 void teclado(unsigned char tecla, int x, int y) {
   switch (tecla) {
-  // Ferramentas base
   case '1':
     ctx.ui.ferramenta_atual = MODO_PONTO;
     ctx.ui.tem_p1_temp = 0;
@@ -342,7 +324,6 @@ void teclado(unsigned char tecla, int x, int y) {
     printf(">> Ferramenta: LAPIS (Continuo)\n");
     break;
 
-  // UI
   case 'c':
   case 'C':
     indice_cor = (indice_cor + 1) % total_cores;
@@ -383,7 +364,6 @@ void teclado(unsigned char tecla, int x, int y) {
     glutPostRedisplay();
     break;
 
-  // Controles de Animacao
   case 'p':
   case 'P':
     animacao_ligada = !animacao_ligada;
@@ -414,44 +394,30 @@ void teclado(unsigned char tecla, int x, int y) {
     modo_animacao = ANIM_CIRCULAR;
     printf(">> Modo de animacao: CIRCULAR\n");
     break;
-
-  // Controles de transformacao
-
-  // ======================
-  // TRANSLACAO
-  // ======================
   case 't':
   case 'T':
     transladarObjeto(&ctx.cena, 20.0f, 0.0f);
     printf(">> Translacao direita\n");
     glutPostRedisplay();
     break;
-
   case 'g':
   case 'G':
     transladarObjeto(&ctx.cena, -20.0f, 0.0f);
     printf(">> Translacao esquerda\n");
     glutPostRedisplay();
     break;
-
   case 'u':
   case 'U':
     transladarObjeto(&ctx.cena, 0.0f, 20.0f);
     printf(">> translacao cima\n");
     glutPostRedisplay();
     break;
-
   case 'j':
   case 'J':
     transladarObjeto(&ctx.cena, 0.0f, -20.0f);
     printf(">> translacao baixo\n");
     glutPostRedisplay();
     break;
-
-    // ======================
-    // ROTACAO
-    // ======================
-
   case 'r':
   case 'R':
     rotacionarObjeto(&ctx.cena, 15.0f);
@@ -465,54 +431,36 @@ void teclado(unsigned char tecla, int x, int y) {
     printf(">> rotacao -15 graus\n");
     glutPostRedisplay();
     break;
-
-    // ======================
-    // REFLEXAO
-    // ======================
-
   case 'x':
   case 'X':
     refletirObjeto(&ctx.cena, REFLEXAO_X);
     printf(">> Reflexao eixo X\n");
     glutPostRedisplay();
     break;
-
   case 'y':
   case 'Y':
     refletirObjeto(&ctx.cena, REFLEXAO_Y);
     printf(">> Reflexao eixo Y\n");
     glutPostRedisplay();
     break;
-
   case 'o':
   case 'O':
     refletirObjeto(&ctx.cena, REFLEXAO_ORIGEM);
     printf(">> Reflexao origem\n");
     glutPostRedisplay();
     break;
-
-    // ======================
-    // ESCALA
-    // ======================
-
   case 'e':
   case 'E':
     escalarObjeto(&ctx.cena, 1.2f, 1.2f);
     printf(">> Escala +20%%\n");
     glutPostRedisplay();
     break;
-
   case 'n':
   case 'N':
     escalarObjeto(&ctx.cena, 0.8f, 0.8f);
     printf(">> Escala -20%%\n");
     glutPostRedisplay();
     break;
-
-    // ======================
-    // CISALHAMENTO
-    // ======================
-
   case 'h':
   case 'H':
     cisalharObjeto(&ctx.cena, 0.2f, 0.0f);
@@ -526,11 +474,6 @@ void teclado(unsigned char tecla, int x, int y) {
     printf(">> Cisalhamento -X\n");
     glutPostRedisplay();
     break;
-
-    // ======================
-    // Convexo
-    // ======================
-
   case 'v':
   case 'V':
     converterParaConvexo(&ctx.cena);
@@ -589,9 +532,6 @@ int main(int argc, char **argv) {
   glutSpecialFunc(teclasEspeciais);
   glutReshapeFunc(redimensionar);
 
-  // ============================================================================
-  // MENU DO CONSOLE ATUALIZADO
-  // ============================================================================
   printf("==================================================\n");
   printf("         CG PAINT - Computacao Grafica            \n");
   printf("==================================================\n");
@@ -636,7 +576,6 @@ int main(int argc, char **argv) {
   printf("    V = Converter Poligono em Convexo\n");
   printf("==================================================\n");
 
-  // Inicializa o motor de animacao
   glutTimerFunc(16, timerAnimacao, 0);
 
   glutMainLoop();
