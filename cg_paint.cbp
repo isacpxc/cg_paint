@@ -37,6 +37,15 @@
 			<Add library="glu32" />
 		</Linker>
 		<Unit filename="Estruturas.h" />
+		<Unit filename="Selecao.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="animacao.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="convexo.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="main.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -44,6 +53,9 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="saveLoad.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="tranformacoes.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Extensions>

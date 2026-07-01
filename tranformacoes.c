@@ -99,8 +99,8 @@ static void transformarPoligono(Poligono *p, Matriz3x3 m){
 static Ponto centroReta(Reta *r){
     Ponto c;
 
-    c.x = (r->p1.x + r->p1.x)/ 2.0f;
-    c.y = (r->p2.y + r->p2.y)/ 2.0f;
+    c.x = (r->p1.x + r->p2.x)/ 2.0f;
+    c.y = (r->p1.y + r->p2.y)/ 2.0f;
 
     return c;
 }
@@ -288,13 +288,42 @@ void cisalharObjeto(CenaGrafica *cena, float shx, float shy){
 
     for(i=0; i< cena->qtd_retas; i++){
         if(cena->retas[i].selecionado){
+            Ponto centro = centroReta(&cena->retas[i]);
+
+            cena->retas[i].p1.x -= centro.x;
+            cena->retas[i].p1.y -= centro.y;
+            cena->retas[i].p2.x -= centro.x;
+            cena->retas[i].p2.y -= centro.y;
+
             transformarReta(&cena->retas[i], C);
+
+            cena->retas[i].p1.x += centro.x;
+            cena->retas[i].p1.y += centro.y;
+            cena->retas[i].p2.x += centro.x;
+            cena->retas[i].p2.y += centro.y;
         }
-    }
+
+        }
 
     for(i=0; i< cena->qtd_poligonos; i++){
         if(cena->poligonos[i].selecionado){
-            transformarPoligono(&cena->poligonos[i], C);
+            Ponto centro = calcularCentro(
+            cena->poligonos[i].vertices,
+            cena->poligonos[i].qtd_vertices);
+
+        for(int j = 0; j < cena->poligonos[i].qtd_vertices; j++){
+
+            cena->poligonos[i].vertices[j].x -= centro.x;
+            cena->poligonos[i].vertices[j].y -= centro.y;
+        }
+
+        transformarPoligono(&cena->poligonos[i], C);
+
+        for(int j = 0; j < cena->poligonos[i].qtd_vertices; j++){
+
+            cena->poligonos[i].vertices[j].x += centro.x;
+            cena->poligonos[i].vertices[j].y += centro.y;
+                }
             }
         }
     }
@@ -354,22 +383,35 @@ void rotacionarObjeto(CenaGrafica *cena, float angulo){
 }
 
     for(i=0; i<cena->qtd_poligonos; i++){
-        Ponto centro;
-        if(cena->poligonos[i].selecionado){
-            centro = calcularCentro
-            (cena->poligonos[i].vertices,
-            cena->poligonos[i].qtd_vertices);
-        }
-    int j;
-    for(j=0; j< cena->poligonos[i].qtd_vertices; j++){
-        float x = cena->poligonos[i].vertices[j].x - centro.x;
-        float y = cena->poligonos[i].vertices[j].y - centro.y;
 
-        cena->poligonos[i].vertices[j].x = centro.x + x*cosseno - y*seno;
-        cena->poligonos[i].vertices[j].y = centro.y + x*seno + y*cosseno;
+        Ponto centro;
+            if(cena->poligonos[i].selecionado){
+        Ponto centro = calcularCentro(
+            cena->poligonos[i].vertices,
+            cena->poligonos[i].qtd_vertices
+        );
+
+        int j;
+        for(j = 0; j < cena->poligonos[i].qtd_vertices; j++)
+        {
+            // Leva para a origem
+            cena->poligonos[i].vertices[j].x -= centro.x;
+            cena->poligonos[i].vertices[j].y -= centro.y;
+
+            // Rotação
+            float x = cena->poligonos[i].vertices[j].x;
+            float y = cena->poligonos[i].vertices[j].y;
+
+            cena->poligonos[i].vertices[j].x = x * cosseno - y * seno;
+            cena->poligonos[i].vertices[j].y = x * seno + y * cosseno;
+
+            // Retorna à posição original
+            cena->poligonos[i].vertices[j].x += centro.x;
+            cena->poligonos[i].vertices[j].y += centro.y;
             }
         }
     }
+}
 
 // =============================================================================
 // escalarObjeto
@@ -391,8 +433,7 @@ void rotacionarObjeto(CenaGrafica *cena, float angulo){
 void escalarObjeto(CenaGrafica *cena, float sx, float sy){
     int i;
 
-    for(i=0;i<cena->qtd_retas;i++)
-    {
+    for(i=0;i<cena->qtd_retas;i++){
         if(cena->retas[i].selecionado){
             Ponto c = centroReta(&cena->retas[i]);
 
@@ -410,10 +451,8 @@ void escalarObjeto(CenaGrafica *cena, float sx, float sy){
         }
     }
 
-    for(i=0;i<cena->qtd_poligonos;i++)
-    {
-        if(cena->poligonos[i].selecionado)
-        {
+    for(i=0;i<cena->qtd_poligonos;i++){
+        if(cena->poligonos[i].selecionado){
             int j;
 
             Ponto c = calcularCentro(
@@ -421,8 +460,7 @@ void escalarObjeto(CenaGrafica *cena, float sx, float sy){
                     cena->poligonos[i].qtd_vertices
                 );
 
-            for(j=0;j<cena->poligonos[i].qtd_vertices;j++)
-            {
+            for(j=0;j<cena->poligonos[i].qtd_vertices;j++){
                 cena->poligonos[i].vertices[j].x = c.x +
                     (cena->poligonos[i].vertices[j].x - c.x)*sx;
 
@@ -432,6 +470,7 @@ void escalarObjeto(CenaGrafica *cena, float sx, float sy){
         }
     }
 }
+
 
 
 
