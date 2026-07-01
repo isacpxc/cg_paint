@@ -31,7 +31,7 @@ O projeto já conta com o arquivo de configuração do Code::Blocks (`cg_paint.c
 Se você possui o GCC configurado com as bibliotecas do FreeGLUT e OpenGL instaladas (`-lfreeglut`, `-lopengl32`, `-lglu32`), abra o terminal na pasta raiz do projeto e execute:
 
 ```bash
-gcc main.c primitivas.c saveLoad.c Selecao.c animacao.c tranformacoes.c -o bin/Debug/cg_paint.exe -lfreeglut -lopengl32 -lglu32
+gcc main.c primitivas.c saveLoad.c Selecao.c animacao.c tranformacoes.c convexo.c -o bin/Debug/cg_paint.exe -lfreeglut -lopengl32 -lglu32
 ```
 Em seguida, basta rodar o executável gerado:
 ```bash
