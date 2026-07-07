@@ -37,6 +37,106 @@ static Ponto aplicaMatriz(Ponto p, Matriz3x3 m)
 
     return resultado;
 }
+// =============================================================================
+// multiplicaMatriz
+// -----------------------------------------------------------------------------
+// Realiza a multiplicação entre duas matrizes homogêneas 3x3.
+//
+// Esta função é utilizada para construir transformações compostas,
+// combinando duas matrizes de transformação em uma única matriz.
+//
+// Parâmetros:
+//   A - primeira matriz
+//   B - segunda matriz
+//
+// Retorno:
+//   Matriz resultante da multiplicação A x B.
+// =============================================================================
+static Matriz3x3 multiplicaMatriz(Matriz3x3 A, Matriz3x3 B)
+{
+    Matriz3x3 R;
+    int i,j,k;
+
+    for(i=0;i<3;i++)
+    {
+        for(j=0;j<3;j++)
+        {
+            R.m[i][j]=0;
+
+            for(k=0;k<3;k++)
+                R.m[i][j]+=A.m[i][k]*B.m[k][j];
+        }
+    }
+
+    return R;
+}
+
+// =============================================================================
+// matrizTranslacao
+// -----------------------------------------------------------------------------
+// Cria uma matriz homogênea de translação.
+//
+// Esta função é utilizada para deslocar objetos ou construir
+// transformações compostas.
+//
+// Parâmetros:
+//   tx - deslocamento no eixo X
+//   ty - deslocamento no eixo Y
+//
+// Retorno:
+//   Matriz homogênea de translação.
+// =============================================================================
+static Matriz3x3 matrizTranslacao(float tx,float ty)
+{
+    Matriz3x3 T = {{
+        {1,0,tx},
+        {0,1,ty},
+        {0,0,1}
+    }};
+
+    return T;
+}
+
+
+// =============================================================================
+// matrizComposta
+// -----------------------------------------------------------------------------
+// Constrói uma transformação composta em torno do centro de um objeto.
+//
+// A transformação é composta por três etapas:
+//
+//   1) Translada o objeto para a origem;
+//   2) Aplica a transformação desejada;
+//   3) Retorna o objeto para sua posição original.
+//
+// Matematicamente:
+//
+//      M = T(C) · M · T(-C)
+//
+// onde:
+//   T(-C) -> leva o centro para a origem;
+//   M     -> transformação principal;
+//   T(C)  -> retorna o objeto ao centro.
+//
+// Parâmetros:
+//   M      - matriz da transformação principal
+//   centro - centro geométrico do objeto
+//
+// Retorno:
+//   Matriz composta correspondente.
+// =============================================================================
+
+static Matriz3x3 matrizComposta(Matriz3x3 M, Ponto centro)
+{
+    Matriz3x3 T1 = matrizTranslacao(-centro.x,-centro.y);
+    Matriz3x3 T2 = matrizTranslacao( centro.x, centro.y);
+
+    Matriz3x3 Aux;
+
+    Aux = multiplicaMatriz(M,T1);
+
+    return multiplicaMatriz(T2,Aux);
+}
 
 // =============================================================================
 // transformarReta
@@ -160,8 +260,7 @@ Ponto calcularCentro(Ponto vertices[], int qtd){
 //   Nenhum.
 // =============================================================================
 
-void transladarObjeto(CenaGrafica *cena, float tx, float ty)
-{
+void transladarObjeto(CenaGrafica *cena, float tx, float ty){
    int i;
    Matriz3x3 T = {{{1,0,tx},
                 {0,1,ty},
@@ -242,19 +341,31 @@ void refletirObjeto(CenaGrafica *cena, EixoReflexao eixo){
         }
     }
 
-    for(i=0; i< cena->qtd_retas; i++){
-        if(cena->retas[i].selecionado){
-            transformarReta(&cena->retas[i], R);
+    for(i = 0; i < cena->qtd_retas; i++){
+    if(cena->retas[i].selecionado){
+
+        Ponto centro = centroReta(&cena->retas[i]);
+
+        Matriz3x3 M = matrizComposta(R, centro);
+
+        transformarReta(&cena->retas[i], M);
+    }
+}
+
+    for(i = 0; i < cena->qtd_poligonos; i++){
+    if(cena->poligonos[i].selecionado){
+
+        Ponto centro = calcularCentro(
+            cena->poligonos[i].vertices,
+            cena->poligonos[i].qtd_vertices
+        );
+
+        Matriz3x3 M = matrizComposta(R, centro);
+
+        transformarPoligono(&cena->poligonos[i], M);
         }
     }
-
-    for(i=0; i< cena->qtd_poligonos; i++){
-        if(cena->poligonos[i].selecionado){
-            transformarPoligono(&cena->poligonos[i], R);
-            }
-        }
-    }
-
+}
 // =============================================================================
 // cisalharObjeto
 // -----------------------------------------------------------------------------
@@ -288,19 +399,10 @@ void cisalharObjeto(CenaGrafica *cena, float shx, float shy){
 
     for(i=0; i< cena->qtd_retas; i++){
         if(cena->retas[i].selecionado){
+
             Ponto centro = centroReta(&cena->retas[i]);
-
-            cena->retas[i].p1.x -= centro.x;
-            cena->retas[i].p1.y -= centro.y;
-            cena->retas[i].p2.x -= centro.x;
-            cena->retas[i].p2.y -= centro.y;
-
-            transformarReta(&cena->retas[i], C);
-
-            cena->retas[i].p1.x += centro.x;
-            cena->retas[i].p1.y += centro.y;
-            cena->retas[i].p2.x += centro.x;
-            cena->retas[i].p2.y += centro.y;
+            Matriz3x3 M = matrizComposta(C, centro);
+            transformarReta(&cena->retas[i], M);
         }
 
         }
@@ -309,21 +411,11 @@ void cisalharObjeto(CenaGrafica *cena, float shx, float shy){
         if(cena->poligonos[i].selecionado){
             Ponto centro = calcularCentro(
             cena->poligonos[i].vertices,
-            cena->poligonos[i].qtd_vertices);
+            cena->poligonos[i].qtd_vertices
+        );
 
-        for(int j = 0; j < cena->poligonos[i].qtd_vertices; j++){
-
-            cena->poligonos[i].vertices[j].x -= centro.x;
-            cena->poligonos[i].vertices[j].y -= centro.y;
-        }
-
-        transformarPoligono(&cena->poligonos[i], C);
-
-        for(int j = 0; j < cena->poligonos[i].qtd_vertices; j++){
-
-            cena->poligonos[i].vertices[j].x += centro.x;
-            cena->poligonos[i].vertices[j].y += centro.y;
-                }
+            Matriz3x3 M = matrizComposta(C, centro);
+            transformarPoligono(&cena->poligonos[i], M);
             }
         }
     }
@@ -352,63 +444,42 @@ void rotacionarObjeto(CenaGrafica *cena, float angulo){
     float cosseno = cos(rad);
     float seno = sin(rad);
 
-    for(i=0; i< cena->qtd_pontos; i++){
-        if(cena->pontos[i].selecionado){
-            float x = cena->pontos[i].posicao.x;
-            float y = cena->pontos[i].posicao.y;
+    Matriz3x3 R = {{
+    {cosseno, -seno, 0},
+    {seno, cosseno, 0},
+    {0, 0,1}}};
 
-            cena->pontos[i].posicao.x = x*cosseno - y*seno;
-            cena->pontos[i].posicao.y = x*seno + y*cosseno;
-        }
+    //pontos
+    for(i = 0; i < cena->qtd_pontos; i++){
+    if(cena->pontos[i].selecionado){
+        cena->pontos[i].posicao =
+            aplicaMatriz(cena->pontos[i].posicao, R);
     }
-
+}
+    //retas
     for(i=0; i< cena->qtd_retas; i++){
         if(cena->retas[i].selecionado){
             Ponto centro = centroReta(&cena->retas[i]);
 
-            Ponto *pts[2] = {
-                &cena->retas[i].p1,
-                &cena->retas[i].p2
-        };
+            Matriz3x3 M = matrizComposta(R, centro);
 
-    int k;
-    for(k=0; k<2; k++){
-        float x = pts[k]->x - centro.x;
-        float y = pts[k]->y - centro.y;
-
-        pts[k]->x = centro.x + x*cosseno -y*seno;
-        pts[k]->y = centro.y + x*seno + y*cosseno;
+            transformarReta(&cena->retas[i], M);
         }
     }
-}
 
+    //poligonos
     for(i=0; i<cena->qtd_poligonos; i++){
-
         Ponto centro;
-            if(cena->poligonos[i].selecionado){
+
+        if(cena->poligonos[i].selecionado){
         Ponto centro = calcularCentro(
-            cena->poligonos[i].vertices,
-            cena->poligonos[i].qtd_vertices
-        );
+        cena->poligonos[i].vertices,
+        cena->poligonos[i].qtd_vertices
+    );
 
-        int j;
-        for(j = 0; j < cena->poligonos[i].qtd_vertices; j++)
-        {
-            // Leva para a origem
-            cena->poligonos[i].vertices[j].x -= centro.x;
-            cena->poligonos[i].vertices[j].y -= centro.y;
+        Matriz3x3 M = matrizComposta(R, centro);
 
-            // Rotação
-            float x = cena->poligonos[i].vertices[j].x;
-            float y = cena->poligonos[i].vertices[j].y;
-
-            cena->poligonos[i].vertices[j].x = x * cosseno - y * seno;
-            cena->poligonos[i].vertices[j].y = x * seno + y * cosseno;
-
-            // Retorna à posição original
-            cena->poligonos[i].vertices[j].x += centro.x;
-            cena->poligonos[i].vertices[j].y += centro.y;
-            }
+        transformarPoligono(&cena->poligonos[i], M);
         }
     }
 }
@@ -470,7 +541,6 @@ void escalarObjeto(CenaGrafica *cena, float sx, float sy){
         }
     }
 }
-
 
 
 
