@@ -502,44 +502,47 @@ void rotacionarObjeto(CenaGrafica *cena, float angulo){
 // =============================================================================
 
 void escalarObjeto(CenaGrafica *cena, float sx, float sy){
+
+    Matriz3x3 S = {{
+    {sx, 0, 0},
+    {0, sy, 0},
+    {0, 0, 1}}};
+
     int i;
+
+
+    for(i = 0; i < cena->qtd_pontos; i++){
+    if(cena->pontos[i].selecionado){
+        cena->pontos[i].posicao =
+            aplicaMatriz(cena->pontos[i].posicao, S);
+    }
+}
 
     for(i=0;i<cena->qtd_retas;i++){
         if(cena->retas[i].selecionado){
-            Ponto c = centroReta(&cena->retas[i]);
+            Ponto centro = centroReta(&cena->retas[i]);
 
-            cena->retas[i].p1.x =
-                c.x + (cena->retas[i].p1.x - c.x)*sx;
+            Matriz3x3 M = matrizComposta(S, centro);
 
-            cena->retas[i].p1.y =
-                c.y + (cena->retas[i].p1.y - c.y)*sy;
-
-            cena->retas[i].p2.x =
-                c.x + (cena->retas[i].p2.x - c.x)*sx;
-
-            cena->retas[i].p2.y =
-                c.y + (cena->retas[i].p2.y - c.y)*sy;
+            transformarReta(&cena->retas[i], M);
         }
     }
+
 
     for(i=0;i<cena->qtd_poligonos;i++){
         if(cena->poligonos[i].selecionado){
             int j;
 
-            Ponto c = calcularCentro(
-                    cena->poligonos[i].vertices,
-                    cena->poligonos[i].qtd_vertices
-                );
+            Ponto centro = calcularCentro(
+            cena->poligonos[i].vertices,
+            cena->poligonos[i].qtd_vertices
+        );
 
-            for(j=0;j<cena->poligonos[i].qtd_vertices;j++){
-                cena->poligonos[i].vertices[j].x = c.x +
-                    (cena->poligonos[i].vertices[j].x - c.x)*sx;
+        Matriz3x3 M = matrizComposta(S, centro);
 
-                cena->poligonos[i].vertices[j].y = c.y +
-                    (cena->poligonos[i].vertices[j].y - c.y)*sy;
-            }
+        transformarPoligono(&cena->poligonos[i], M);
+                }
         }
-    }
 }
 
 
