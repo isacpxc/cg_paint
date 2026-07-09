@@ -29,7 +29,7 @@ static void aplicarJarvisMarch(Poligono *p) {
 
   do {
     if (qtd_fecho >= MAX_VERTICES) {
-      printf("[AVISO] Limite m�ximo de v�rtices do fecho atingido.\n");
+      printf("[AVISO] Limite máximo de vértices do fecho atingido.\n");
       break;
     }
     fecho[qtd_fecho++] = p->vertices[p_atual];
@@ -62,9 +62,9 @@ void converterParaConvexo(CenaGrafica *cena) {
   }
 
   if (conversoes == 0) {
-    printf("[AVISO] Nenhum pol�gono selecionado para converter.\n");
+    printf("[AVISO] Nenhum polígono selecionado para converter.\n");
   } else {
-    printf("[SUCESSO] %d pol�gono(s) convertido(s) para convexo.\n",
+    printf("[SUCESSO] %d polígono(s) convertido(s) para convexo.\n",
            conversoes);
   }
 }
